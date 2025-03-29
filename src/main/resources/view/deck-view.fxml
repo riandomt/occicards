@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="dm.occicards.controller.DeckController"
+      prefHeight="600.0" prefWidth="800.0" spacing="10">
+
+    <Text fx:id="title" text="Créer un nouveau deck" style="-fx-font-size: 24; -fx-text-alignment: center;"/>
+
+    <HBox spacing="10">
+        <Label text="Nom du deck : "/>
+        <TextField fx:id="name"/>
+    </HBox>
+
+    <VBox spacing="10">
+        <Label text="Description du deck : "/>
+        <TextArea fx:id="description" wrapText="true"/>
+    </VBox>
+
+    <Separator/>
+
+    <HBox spacing="10">
+        <Button fx:id="submitButton" text="Créer le deck" onAction="#handleSubmit" styleClass="btn-primary"/>
+        <Button text="Ajouter une carte" onAction="#handleAddCard" styleClass="btn-primary"/>
+        <Button text="Annuler" onAction="#handleCancel" styleClass="btn-danger"/>
+    </HBox>
+</VBox>

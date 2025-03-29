@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="dm.occicards.controller.MainController"
+      prefHeight="600.0" prefWidth="1000.0" spacing="10">
+
+    <!-- Menu Bar -->
+    <MenuBar>
+        <Menu text="Fichier">
+            <MenuItem text="Nouveau deck" onAction="#handleNewDeck"/>
+            <MenuItem text="Ouvrir un deck" onAction="#handleOpenDeck"/>
+            <MenuItem text="Actualisé" onAction="#handleRefresh"/>
+            <SeparatorMenuItem/>
+            <MenuItem text="Quitter" onAction="#handleExit"/>
+        </Menu>
+        <Menu text="Aide">
+            <MenuItem text="À Propos" onAction="#handleAbout"/>
+        </Menu>
+    </MenuBar>
+
+    <!-- Table View -->
+    <TableView fx:id="tableView">
+        <columns>
+            <TableColumn text="Nom" fx:id="nameColumn"/>
+            <TableColumn text="Description" fx:id="descriptionColumn"/>
+            <TableColumn text="Réviser" fx:id="reviseColumn"/>
+            <TableColumn text="Modifier" fx:id="editColumn"/>
+            <TableColumn text="Supprimer" fx:id="deleteColumn"/>
+            <TableColumn text="Télécharger" fx:id="downloadColumn"/>
+        </columns>
+    </TableView>
+
+    <!-- Buttons -->
+    <HBox spacing="10">
+        <Button text="Nouveau deck +" onAction="#handleNewDeck" styleClass="btn-primary"/>
+        <Button text="Ouvrir un deck ↓" onAction="#handleOpenDeck" styleClass="btn-primary"/>
+    </HBox>
+
+</VBox>
