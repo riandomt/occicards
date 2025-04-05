@@ -1,28 +1,35 @@
 package dm.occicards.controller;
 
+import dm.occicards.model.Card;
 import dm.occicards.model.Deck;
 import dm.occicards.utils.AlertManager;
 import dm.occicards.utils.FileManager;
 import dm.occicards.utils.JsonManager;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class DeckController {
     private Stage dialogStage;
     private MainController mainController;
     private Deck deck;
+    private ObservableList<Card> temporaryCards = FXCollections.observableArrayList();
+
+    @FXML
+    private Text title;
 
     @FXML
     private TextField name;
@@ -34,26 +41,86 @@ public class DeckController {
     private Button submitButton;
 
     @FXML
-    public void initialize() {
-        // Initialisation par défaut pour la création
-        submitButton.setText("Créer le deck");
-    }
+    private TableView<Card> tableView;
 
-    public void initializeFields(Deck deck) {
-        this.deck = deck;
-        if (deck != null) {
-            name.setText(deck.getName());
-            description.setText(deck.getDescription());
-            submitButton.setText("Modifier le deck");
-        } else {
-            submitButton.setText("Créer le deck");
-        }
+    @FXML
+    private TableColumn<Card, String> questionColumn;
+
+    @FXML
+    private TableColumn<Card, String> answerColumn;
+
+    @FXML
+    private TableColumn<Card, Void> editColumn;
+
+    @FXML
+    private TableColumn<Card, Void> deleteColumn;
+
+    @FXML
+    public void initialize() {
+        submitButton.setText("Créer le deck");
+
+        // Configuration des colonnes pour afficher les questions et réponses
+        questionColumn.setCellValueFactory(new PropertyValueFactory<>("question"));
+        answerColumn.setCellValueFactory(new PropertyValueFactory<>("answer"));
+
+        // Configuration des colonnes "Modifier" et "Supprimer" avec des boutons
+        editColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button editButton = new Button("Modifier");
+
+            {
+                editButton.setOnAction(event -> {
+                    Card card = getTableView().getItems().get(getIndex());
+                    // Logique pour modifier la carte
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(editButton);
+                }
+            }
+        });
+
+        deleteColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button deleteButton = new Button("Supprimer");
+
+            {
+                deleteButton.setOnAction(event -> {
+                    Card card = getTableView().getItems().get(getIndex());
+                    getTableView().getItems().remove(card);
+                    if (deck != null) {
+                        deck.getCards().remove(card);
+                        updateDeckFile(deck, deck);
+                    } else {
+                        temporaryCards.remove(card);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(deleteButton);
+                }
+            }
+        });
+
+        // Lier le TableView à l'ObservableList
+        tableView.setItems(temporaryCards);
     }
 
     @FXML
     public void handleSubmit() {
         String deckName = name.getText();
         String deckDescription = description.getText();
+
         boolean alertShown = false;
 
         if (deckName.isEmpty()) {
@@ -78,9 +145,9 @@ public class DeckController {
         }
 
         if (deck == null) {
-            // Création d'un nouveau deck
-            deck = new Deck(deckName, deckDescription);
+            deck = new Deck(deckName, deckDescription, new ArrayList<>(temporaryCards));
             String content = "{\n" +
+                    "  \"id\": \"" + deck.getIdAsString() + "\",\n" +
                     "  \"name\": \"" + deck.getName() + "\",\n" +
                     "  \"description\": \"" + deck.getDescription() + "\",\n" +
                     "  \"deck\": {}\n" +
@@ -92,8 +159,11 @@ public class DeckController {
             new AlertManager("Création du deck", null,
                     "Deck créé avec succès",
                     Alert.AlertType.INFORMATION).alert();
+
+            updateDeckFile(deck, deck);
         } else {
-            Deck newDeck = new Deck(deckName, deckDescription);
+            title = new Text("Modification du deck");
+            Deck newDeck = new Deck(deckName, deckDescription, new ArrayList<>(temporaryCards));
             this.updateDeckFile(deck, newDeck);
             new AlertManager("Modification du deck", null,
                     "Deck modifié avec succès",
@@ -110,21 +180,39 @@ public class DeckController {
         File fileDeck = new File("user_dir", deck.getName().replace(" ", "_").toLowerCase() + ".json");
         FileManager fileManager = new FileManager(fileDeck);
 
-        // Lire le contenu du fichier JSON
         String content = fileManager.getFileContent();
         JsonManager jsonManager = new JsonManager(content);
 
-        // Mettre à jour les valeurs dans l'objet JSON
         jsonManager.update("name", newDeck.getName());
         jsonManager.update("description", newDeck.getDescription());
 
-        fileManager.writeFileContent(jsonManager.getJsonAsString());
+        JSONObject deckJson = jsonManager.getJson().getJSONObject("deck");
+        for (int i = 0; i < newDeck.getCards().size(); i++) {
+            Card card = newDeck.getCards().get(i);
+            JSONObject cardObject = new JSONObject();
+            cardObject.put("question", card.getQuestion());
+            cardObject.put("answer", card.getAnswer());
+            deckJson.put(String.valueOf(i + 1), cardObject);
+        }
 
-        // Renommer le fichier si le nom a changé
+        fileManager.writeFileContent(jsonManager.getJsonAsString());
         fileManager.rename(newDeck.getName());
     }
 
+    public void addCardToDeck(Card card) {
+        if (card.getQuestion() == null || card.getAnswer() == null) {
+            System.out.println("Erreur : La carte n'a pas de question ou de réponse.");
+            return;
+        }
 
+        if (deck != null) {
+            deck.getCards().add(card);
+            updateDeckFile(deck, deck);
+        } else {
+            temporaryCards.add(card);
+        }
+        populateTable();
+    }
 
     @FXML
     public void handleAddCard() {
@@ -169,4 +257,25 @@ public class DeckController {
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }
+
+    public void populateTable() {
+        ObservableList<Card> cards = FXCollections.observableArrayList();
+        if (deck != null) {
+            cards.addAll(deck.getCards());
+        } else {
+            cards.addAll(temporaryCards);
+        }
+        tableView.setItems(cards);
+    }
+
+    public Text getTitle() {
+        return title;
+    }
+
+    public void setTitleValue(String value) {
+        if (title != null) {
+            title.setText(value);
+        }
+    }
+
 }

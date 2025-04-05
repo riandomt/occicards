@@ -1,5 +1,6 @@
 package dm.occicards.controller;
 
+import dm.occicards.model.Card;
 import dm.occicards.model.Deck;
 import dm.occicards.utils.AlertManager;
 import dm.occicards.utils.FileManager;
@@ -17,11 +18,15 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainController {
@@ -54,7 +59,7 @@ public class MainController {
         setupEditButton();
         setupDeleteButton();
         setupDownloadButton();
-        setupReviseButton(); // Ajout de la configuration du bouton "Réviser"
+        setupReviseButton(); // Configuration du bouton "Réviser"
 
         this.populateTable();
     }
@@ -81,7 +86,26 @@ public class MainController {
     }
 
     private void handleRevise(Deck deck) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/revise-view.fxml"));
 
+            Stage reviseStage = new Stage();
+            reviseStage.setTitle("Réviser");
+            reviseStage.initModality(Modality.APPLICATION_MODAL);
+
+            Scene reviseScene = new Scene(loader.load());
+            String stylesheet = getClass().getResource("/style.css").toExternalForm();
+            reviseScene.getStylesheets().add(stylesheet);
+            reviseStage.setScene(reviseScene);
+
+            ReviseController reviseController = loader.getController();
+            reviseController.setDialogStage(reviseStage);
+            reviseController.setDeck(deck);
+            reviseStage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Exception occurred: " + e.getMessage());
+        }
     }
 
     private void setupEditButton() {
@@ -104,7 +128,6 @@ public class MainController {
             }
         });
     }
-
     private void handleEdit(Deck deck) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/deck-view.fxml"));
@@ -122,7 +145,9 @@ public class MainController {
             DeckController deckController = loader.getController();
             deckController.setDialogStage(deckStage);
             deckController.setMainController(this);
-            deckController.initializeFields(deck);
+
+            // Mettre à jour le titre
+            deckController.setTitleValue("Modifier le deck");
 
             deckStage.showAndWait();
         } catch (IOException e) {
@@ -130,6 +155,7 @@ public class MainController {
             System.out.println("Exception occurred: " + e.getMessage());
         }
     }
+
 
     private void setupDeleteButton() {
         deleteColumn.setCellFactory(param -> new TableCell<>() {
@@ -210,15 +236,27 @@ public class MainController {
         ObservableList<Deck> decks = FXCollections.observableArrayList();
 
         for (File file : files) {
-            FileManager fileManager1 = new FileManager(file);
-            String content = fileManager1.getFileContent();
-            JsonManager jsonFile = new JsonManager(content);
+            try {
+                String content = JsonManager.readFileContent(file);
+                JsonManager jsonManager = new JsonManager(content);
 
-            String name = jsonFile.getValue("name");
-            String description = jsonFile.getValue("description");
+                String name = jsonManager.getValue("name");
+                String description = jsonManager.getValue("description");
 
-            Deck deck = new Deck(name, description);
-            decks.add(deck);
+                List<Card> cards = new ArrayList<>();
+                JSONArray deckElements = jsonManager.getDeckElements();
+                for (int i = 0; i < deckElements.length(); i++) {
+                    JSONObject cardJson = deckElements.getJSONObject(i);
+                    String question = cardJson.getString("question");
+                    String answer = cardJson.getString("answer");
+                    cards.add(new Card(question, answer));
+                }
+
+                Deck deck = new Deck(name, description, cards);
+                decks.add(deck);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         tableView.setItems(decks);

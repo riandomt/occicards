@@ -3,13 +3,18 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="dm.occicards.controller.DeckController"
-      prefHeight="600.0" prefWidth="800.0" spacing="10">
+      prefHeight="600.0" prefWidth="1000.0" spacing="10">
 
-    <Text fx:id="title" text="Créer un nouveau deck" style="-fx-font-size: 24; -fx-text-alignment: center;"/>
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <Text fx:id="title" styleClass="text"/>
 
     <HBox spacing="10">
         <Label text="Nom du deck : "/>
@@ -20,6 +25,15 @@
         <Label text="Description du deck : "/>
         <TextArea fx:id="description" wrapText="true"/>
     </VBox>
+
+    <TableView fx:id="tableView">
+        <columns>
+            <TableColumn text="Question" fx:id="questionColumn"/>
+            <TableColumn text="Réponse" fx:id="answerColumn"/>
+            <TableColumn text="Modifier" fx:id="editColumn"/>
+            <TableColumn text="Supprimer" fx:id="deleteColumn"/>
+        </columns>
+    </TableView>
 
     <Separator/>
 

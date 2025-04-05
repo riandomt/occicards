@@ -1,26 +1,31 @@
 package dm.occicards.model;
 
-import dm.occicards.utils.AlertManager;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-public class Deck{
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class Deck {
+    private final UUID id;
     private String name;
     private String description;
-    private String revise;
-    private Button edit;
-    private Button delete;
-    private Button download;
+    private List<Card> cards;
 
-    public Deck(String name, String description,
-                Button edit, Button delete, Button download) {
-        this.setName(name);
-        this.setDescription(description);
+    public Deck(String name, String description, List<Card> cards) {
+        this.id = UUID.randomUUID();
+        this.name = name;
+        this.description = description;
+        this.cards = cards != null ? cards : new ArrayList<>();
     }
 
     public Deck(String name, String description) {
-        this.setName(name);
-        this.setDescription(description);
+        this(name, description, new ArrayList<>());
+    }
+
+    public String getIdAsString() {
+        return id.toString();
     }
 
     public String getName() {
@@ -39,35 +44,30 @@ public class Deck{
         this.description = description;
     }
 
-    public String getRevise() {
-        return revise;
+    public List<Card> getCards() {
+        return cards;
     }
 
-    public void setRevise(String revise) {
-        this.revise = revise;
+    public void setCards(List<Card> cards) {
+        this.cards = cards;
     }
 
-    public Button getEdit() {
-        return edit;
-    }
+    public String getJsonContent() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", getIdAsString());
+        jsonObject.put("name", getName());
+        jsonObject.put("description", getDescription());
 
-    public void setEdit(Button edit) {
-        this.edit = edit;
-    }
+        JSONObject deckJson = new JSONObject();
+        for (int i = 0; i < cards.size(); i++) {
+            Card card = cards.get(i);
+            JSONObject cardJson = new JSONObject();
+            cardJson.put("question", card.getQuestion());
+            cardJson.put("answer", card.getAnswer());
+            deckJson.put(String.valueOf(i + 1), cardJson);
+        }
 
-    public Button getDelete() {
-        return delete;
-    }
-
-    public void setDelete(Button delete) {
-        this.delete = delete;
-    }
-
-    public Button getDownload() {
-        return download;
-    }
-
-    public void setDownload(Button download) {
-        this.download = download;
+        jsonObject.put("deck", deckJson);
+        return jsonObject.toString();
     }
 }

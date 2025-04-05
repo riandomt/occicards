@@ -4,9 +4,32 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
+<?import javafx.geometry.Insets?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="dm.occicards.controller.CardController"
       prefHeight="600.0" prefWidth="800.0" spacing="10">
 
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <Text fx:id="title" text="Créer un nouvelle carte" style="-fx-font-size: 24; -fx-text-alignment: center;"/>
+
+    <HBox spacing="10">
+        <Label text="Question : "/>
+        <TextArea fx:id="question" wrapText="true"/>
+    </HBox>
+
+    <HBox spacing="10">
+        <Label text="Réponse : "/>
+        <TextArea fx:id="answer" wrapText="true"/>
+    </HBox>
+
+    <Separator/>
+
+    <HBox spacing="10">
+        <Button text="Ajouter une carte" onAction="#handleCreate" styleClass="btn-primary"/>
+        <Button text="Annuler" onAction="#handleCancel" styleClass="btn-danger"/>
+    </HBox>
 </VBox>

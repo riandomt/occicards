@@ -12,10 +12,15 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("/view/main-view.fxml"));
 
-        Scene scene = new Scene(loader.load(), 1000, 600);
+        Scene scene = new Scene(loader.load());
+
         stage.setTitle("Occicards");
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         stage.setScene(scene);
+
+        // Maximiser la fenêtre
+        stage.setMaximized(true);
+
         stage.show();
     }
 
