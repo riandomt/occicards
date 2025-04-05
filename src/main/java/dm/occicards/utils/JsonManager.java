@@ -3,10 +3,13 @@ package dm.occicards.utils;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class JsonManager {
     private JSONObject json;
@@ -16,13 +19,12 @@ public class JsonManager {
     }
 
     public JsonManager() {
-
+        this.json = new JSONObject();
     }
 
     public String getValue(String key) {
         try {
-            String value = getJson().getString(key);
-            return value;
+            return getJson().getString(key);
         } catch (JSONException e) {
             System.err.println("Key '" + key + "' not found in JSON object.");
             return null;
@@ -32,6 +34,15 @@ public class JsonManager {
     public void update(String key, String newValue) {
         getJson().put(key, newValue);
         System.out.println("The value of '" + key + "' has been updated to '" + newValue + "'");
+    }
+
+    public void remove(String key) {
+        if (getJson().has(key)) {
+            getJson().remove(key);
+            System.out.println("The key '" + key + "' has been removed.");
+        } else {
+            System.err.println("Key '" + key + "' not found in JSON object.");
+        }
     }
 
     public File openJson() {
@@ -79,5 +90,25 @@ public class JsonManager {
 
     public String getJsonAsString() {
         return getJson().toString();
+    }
+
+    public JSONArray getDeckElements() {
+        JSONArray deckElements = new JSONArray();
+        JSONObject deck = getJson().optJSONObject("deck");
+
+        if (deck != null) {
+            for (String key : deck.keySet()) {
+                JSONObject card = deck.optJSONObject(key);
+                if (card != null) {
+                    deckElements.put(card);
+                }
+            }
+        }
+
+        return deckElements;
+    }
+
+    public static String readFileContent(File file) throws IOException {
+        return new String(Files.readAllBytes(file.toPath()));
     }
 }

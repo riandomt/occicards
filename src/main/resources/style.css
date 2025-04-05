@@ -72,8 +72,7 @@
 
 /* Style pour les en-têtes de colonnes */
 .table-view .column-header {
-    -fx-background-color: #051C48;
-    -fx-text-fill: white;
+    -fx-background-color: #EEEEEE;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
     -fx-alignment: CENTER;
@@ -89,7 +88,13 @@
     -fx-padding: 10px;
 }
 
-/* Style pour les cellules sélectionnées */
-.table-view .table-row-cell:selected {
-    -fx-background-color: #cce0ff; /* Couleur de fond des cellules sélectionnées */
+.text{
+    -fx-font-size: 16px;
+    -fx-text-alignment: center;
+}
+
+.right{
+    -fx-text-align: right;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
 }

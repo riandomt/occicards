@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+
+<VBox prefWidth="600" prefHeight="600"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="dm.occicards.controller.ReviseController"
+>
+
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <Text fx:id="remainingCard" textAlignment="RIGHT" styleClass="right"/>
+
+    <VBox spacing="10">
+        <Text fx:id="questionText" text="Question " styleClass="text"/>
+        <Label fx:id="questionLabel"/>
+    </VBox>
+
+    <VBox spacing="10">
+        <Text fx:id="answerText" text="Réponse " styleClass="text" visible="false"/>
+        <Label fx:id="answerLabel" visible="false"/>
+    </VBox>
+
+    <Button fx:id="returnCardBtn" text="Retourner" styleClass="btn-primary" onAction="#handleReturnCard"/>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="excellentBtn" text="Très bien" onAction="#handleExcellent" styleClass="btn-primary" visible="false"/>
+        <Button fx:id="goodBtn" text="Bien" onAction="#handleGood" styleClass="btn-success" visible="false"/>
+        <Button fx:id="averageBtn" text="Moyen" onAction="#handleAverage" styleClass="btn-warning" visible="false"/>
+        <Button fx:id="poorBtn" text="Mauvais" onAction="#handlePoor" styleClass="btn-danger" visible="false"/>
+    </HBox>
+
+</VBox>
