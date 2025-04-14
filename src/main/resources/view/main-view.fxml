@@ -2,19 +2,19 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.geometry.Insets?>
+
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="dm.occicards.controller.MainController"
-      prefHeight="600.0" prefWidth="1000.0" spacing="10">
+      prefHeight="600.0" prefWidth="1000.0" stylesheets="@../style.css">
 
     <!-- Menu Bar -->
     <MenuBar>
         <Menu text="Fichier">
             <MenuItem text="Nouveau deck" onAction="#handleNewDeck"/>
             <MenuItem text="Ouvrir un deck" onAction="#handleOpenDeck"/>
-            <MenuItem text="Actualisé" onAction="#handleRefresh"/>
+            <MenuItem text="Actualiser" onAction="#handleRefresh"/>
             <SeparatorMenuItem/>
             <MenuItem text="Quitter" onAction="#handleExit"/>
         </Menu>
@@ -23,22 +23,27 @@
         </Menu>
     </MenuBar>
 
-    <!-- Table View -->
-    <TableView fx:id="tableView">
-        <columns>
-            <TableColumn text="Nom" fx:id="nameColumn"/>
-            <TableColumn text="Description" fx:id="descriptionColumn"/>
-            <TableColumn text="Réviser" fx:id="reviseColumn"/>
-            <TableColumn text="Modifier" fx:id="editColumn"/>
-            <TableColumn text="Supprimer" fx:id="deleteColumn"/>
-            <TableColumn text="Télécharger" fx:id="downloadColumn"/>
-        </columns>
-    </TableView>
+    <!-- Conteneur interne avec padding -->
+    <VBox spacing="10" VBox.vgrow="ALWAYS">
+        <!-- Table View -->
+        <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn text="Nom" fx:id="nameColumn" prefWidth="200.0"/>
+                <TableColumn text="Description" fx:id="descriptionColumn" prefWidth="400.0"/>
+                <TableColumn text="Réviser" fx:id="reviseColumn" prefWidth="100.0"/>
+                <TableColumn text="Modifier" fx:id="editColumn" prefWidth="100.0"/>
+                <TableColumn text="Supprimer" fx:id="deleteColumn" prefWidth="100.0"/>
+                <TableColumn text="Télécharger" fx:id="downloadColumn" prefWidth="120.0"/>
+            </columns>
+        </TableView>
 
-    <!-- Buttons -->
-    <HBox spacing="10">
-        <Button text="Nouveau deck +" onAction="#handleNewDeck" styleClass="btn-primary"/>
-        <Button text="Ouvrir un deck ↓" onAction="#handleOpenDeck" styleClass="btn-primary"/>
-    </HBox>
-
+        <!-- Buttons avec padding -->
+        <HBox spacing="10" alignment="CENTER">
+            <padding>
+                <Insets top="25" right="25" bottom="25" left="25"/>
+            </padding>
+            <Button text="Nouveau deck +" onAction="#handleNewDeck" styleClass="btn-primary"/>
+            <Button text="Ouvrir un deck ↓" onAction="#handleOpenDeck" styleClass="btn-primary"/>
+        </HBox>
+    </VBox>
 </VBox>

@@ -5,65 +5,49 @@
 .btn-primary {
     -fx-background-color: #051C48;
     -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-padding: 5px;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
     -fx-border-radius: 5px;
 }
 
 .btn-primary:hover {
     -fx-background-color: #092B6C;
-    -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-padding: 5px;
-    -fx-border-radius: 5px;
 }
 
 .btn-success {
     -fx-background-color: #28A745;
     -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-padding: 5px;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
     -fx-border-radius: 5px;
 }
 
 .btn-success:hover {
     -fx-background-color: #24983E;
-    -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-padding: 5px;
-    -fx-border-radius: 5px;
 }
 
 .btn-danger {
     -fx-background-color: #C80C0F;
     -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-padding: 5px;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
     -fx-border-radius: 5px;
 }
 
 .btn-danger:hover {
     -fx-background-color: #E01014;
-    -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-padding: 5px;
-    -fx-border-radius: 5px;
 }
 
 .btn-warning {
     -fx-background-color: #FCDD17;
     -fx-text-fill: black;
-    -fx-font-size: 12px;
-    -fx-padding: 5px;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
     -fx-border-radius: 5px;
 }
 
 .btn-warning:hover {
     -fx-background-color: #E3C713;
-    -fx-text-fill: black;
-    -fx-font-size: 12px;
-    -fx-padding: 5px;
-    -fx-border-radius: 5px;
 }
 
 .crud {
@@ -71,8 +55,12 @@
 }
 
 /* Style pour les en-têtes de colonnes */
+.table-view .column-header-background {
+    -fx-background-color: #051C48;
+}
+
 .table-view .column-header {
-    -fx-background-color: #EEEEEE;
+    -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
     -fx-alignment: CENTER;
@@ -80,7 +68,7 @@
 
 /* Style pour les en-têtes de colonnes au survol */
 .table-view .column-header:hover {
-    -fx-background-color: #d0d0d0; /* Couleur de fond au survol */
+    -fx-background-color: #092B6C; /* Couleur de fond au survol */
 }
 
 /* Style pour les cellules de la table */
@@ -88,13 +76,25 @@
     -fx-padding: 10px;
 }
 
-.text{
+.text {
     -fx-font-size: 16px;
     -fx-text-alignment: center;
 }
 
-.right{
+.h1 {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.right {
     -fx-text-align: right;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
+}
+
+.label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: right;
+    -fx-padding: 0 10 0 0;
 }

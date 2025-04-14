@@ -18,7 +18,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.json.JSONArray;
@@ -29,41 +29,76 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Main controller class for managing the deck operations in the application.
+ */
 public class MainController {
     @FXML
     private TableView<Deck> tableView;
 
+    /**
+     * TableColumn for displaying the deck name.
+     */
     @FXML
     private TableColumn<Deck, String> nameColumn;
 
+    /**
+     * TableColumn for displaying the deck description.
+     */
     @FXML
     private TableColumn<Deck, String> descriptionColumn;
 
+    /**
+     * TableColumn for revising a deck.
+     */
     @FXML
     private TableColumn<Deck, Void> reviseColumn;
 
+    /**
+     * TableColumn for editing a deck.
+     */
     @FXML
     private TableColumn<Deck, Void> editColumn;
 
+    /**
+     * TableColumn for deleting a deck.
+     */
     @FXML
     private TableColumn<Deck, Void> deleteColumn;
 
+    /**
+     * TableColumn for downloading a deck.
+     */
     @FXML
     private TableColumn<Deck, Void> downloadColumn;
 
+    /**
+     * Initializes the controller, sets up the table columns and buttons.
+     */
     @FXML
     public void initialize() {
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
         descriptionColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDescription()));
 
+        // Set column widths
+        nameColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.25));
+        descriptionColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.25));
+        reviseColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.125));
+        editColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.125));
+        deleteColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.125));
+        downloadColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.125));
+
         setupEditButton();
         setupDeleteButton();
         setupDownloadButton();
-        setupReviseButton(); // Configuration du bouton "Réviser"
+        setupReviseButton();
 
         this.populateTable();
     }
 
+    /**
+     * Sets up the revise button in the table.
+     */
     private void setupReviseButton() {
         reviseColumn.setCellFactory(param -> new TableCell<>() {
             final Button reviseButton = new Button("⏵");
@@ -85,12 +120,17 @@ public class MainController {
         });
     }
 
+    /**
+     * Handles the revise action for a deck.
+     *
+     * @param deck The deck to revise.
+     */
     private void handleRevise(Deck deck) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/revise-view.fxml"));
 
             Stage reviseStage = new Stage();
-            reviseStage.setTitle("Réviser");
+            reviseStage.setTitle("Revise");
             reviseStage.initModality(Modality.APPLICATION_MODAL);
 
             Scene reviseScene = new Scene(loader.load());
@@ -108,6 +148,9 @@ public class MainController {
         }
     }
 
+    /**
+     * Sets up the edit button in the table.
+     */
     private void setupEditButton() {
         editColumn.setCellFactory(param -> new TableCell<>() {
             final Button editButton = new Button("\uD83D\uDD8A");
@@ -120,6 +163,7 @@ public class MainController {
                 } else {
                     setGraphic(editButton);
                     editButton.getStyleClass().addAll("btn-warning", "crud");
+                    editButton.setTextAlignment(TextAlignment.CENTER);
                     editButton.setOnAction(event -> {
                         Deck deck = getTableView().getItems().get(getIndex());
                         handleEdit(deck);
@@ -128,13 +172,19 @@ public class MainController {
             }
         });
     }
+
+    /**
+     * Handles the edit action for a deck.
+     *
+     * @param deck The deck to edit.
+     */
     private void handleEdit(Deck deck) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/deck-view.fxml"));
             VBox page = loader.load();
 
             Stage deckStage = new Stage();
-            deckStage.setTitle("Éditer le Deck");
+            deckStage.setTitle("Modifier");
             deckStage.initModality(Modality.APPLICATION_MODAL);
 
             Scene deckScene = new Scene(page);
@@ -146,8 +196,11 @@ public class MainController {
             deckController.setDialogStage(deckStage);
             deckController.setMainController(this);
 
-            // Mettre à jour le titre
-            deckController.setTitleValue("Modifier le deck");
+            deckController.setDeck(deck);
+            deckController.setTitleValue("Modifier un deck");
+            deckController.setName(deck.getName());
+            deckController.setDescription(deck.getDescription());
+            deckController.setSubmitButton("Modifier");
 
             deckStage.showAndWait();
         } catch (IOException e) {
@@ -156,7 +209,9 @@ public class MainController {
         }
     }
 
-
+    /**
+     * Sets up the delete button in the table.
+     */
     private void setupDeleteButton() {
         deleteColumn.setCellFactory(param -> new TableCell<>() {
             final Button deleteButton = new Button(" \uD83D\uDDD1 ");
@@ -169,6 +224,7 @@ public class MainController {
                 } else {
                     setGraphic(deleteButton);
                     deleteButton.getStyleClass().addAll("btn-danger", "crud");
+                    deleteButton.setTextAlignment(TextAlignment.CENTER);
                     deleteButton.setOnAction(event -> {
                         Deck deck = getTableView().getItems().get(getIndex());
                         handleDelete(deck.getName());
@@ -178,21 +234,29 @@ public class MainController {
         });
     }
 
+    /**
+     * Handles the delete action for a deck.
+     *
+     * @param name The name of the deck to delete.
+     */
     private void handleDelete(String name) {
         File jsonFile = new File("user_dir" + File.separator + name.replace(" ", "_").toLowerCase() + ".json");
-        AlertManager alert = new AlertManager("Supprimer un deck",
-                "Etes-vous sûr de vouloir supprimer ce deck ?",
-                "Cliquez sur OK pour confirmer",
+        AlertManager alert = new AlertManager("Delete Deck",
+                "Are you sure you want to delete this deck?",
+                "Click OK to confirm",
                 Alert.AlertType.CONFIRMATION);
         if (alert.confirm()) {
             new FileManager(jsonFile).delete();
-            new AlertManager("Suppression du deck",
+            new AlertManager("Deck Deletion",
                     null,
-                    "Deck supprimé avec succès", Alert.AlertType.INFORMATION).alert();
+                    "Deck deleted successfully", Alert.AlertType.INFORMATION).alert();
             populateTable();
         }
     }
 
+    /**
+     * Sets up the download button in the table.
+     */
     private void setupDownloadButton() {
         downloadColumn.setCellFactory(param -> new TableCell<>() {
             final Button downloadButton = new Button("↓");
@@ -205,6 +269,7 @@ public class MainController {
                 } else {
                     setGraphic(downloadButton);
                     downloadButton.getStyleClass().addAll("btn-primary", "crud");
+                    downloadButton.setTextAlignment(TextAlignment.CENTER);
                     downloadButton.setOnAction(event -> {
                         Deck deck = getTableView().getItems().get(getIndex());
                         handleDownload(deck.getName());
@@ -214,6 +279,11 @@ public class MainController {
         });
     }
 
+    /**
+     * Handles the download action for a deck.
+     *
+     * @param name The name of the deck to download.
+     */
     private void handleDownload(String name) {
         File jsonFile = new File("user_dir" + File.separator + name + ".json");
         FileManager fileManager = new FileManager(new File("user_dir"));
@@ -222,14 +292,17 @@ public class MainController {
         if (selectedDirectory != null) {
             File destinationFile = new File(selectedDirectory, jsonFile.getName());
             new FileManager(jsonFile).copyFileToAnotherFile(destinationFile);
-            new AlertManager("Téléchargement du deck",
+            new AlertManager("Deck Download",
                     null,
-                    "Fichier téléchargé avec succès", Alert.AlertType.INFORMATION).alert();
+                    "File downloaded successfully", Alert.AlertType.INFORMATION).alert();
         } else {
-            System.out.println("Aucun répertoire sélectionné.");
+            System.out.println("No directory selected.");
         }
     }
 
+    /**
+     * Populates the table view with decks from the user directory.
+     */
     public void populateTable() {
         FileManager fileManager = new FileManager(new File("user_dir"));
         List<File> files = fileManager.fetchFiles();
@@ -262,14 +335,17 @@ public class MainController {
         tableView.setItems(decks);
     }
 
+    /**
+     * Handles the creation of a new deck.
+     */
     @FXML
-    public void handleNewDeck() {
+    private void handleNewDeck() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/deck-view.fxml"));
             VBox page = loader.load();
 
             Stage deckStage = new Stage();
-            deckStage.setTitle("Nouveau Deck");
+            deckStage.setTitle("New Deck");
             deckStage.initModality(Modality.APPLICATION_MODAL);
 
             Scene deckScene = new Scene(page);
@@ -280,6 +356,8 @@ public class MainController {
             DeckController deckController = loader.getController();
             deckController.setDialogStage(deckStage);
             deckController.setMainController(this);
+            deckController.setTitleValue("Créer un deck");
+            deckController.setSubmitButton("Créer");
 
             deckStage.showAndWait();
         } catch (IOException e) {
@@ -288,28 +366,40 @@ public class MainController {
         }
     }
 
+    /**
+     * Handles the opening of an existing deck.
+     */
     @FXML
-    public void handleOpenDeck() {
+    private void handleOpenDeck() {
         File selectedFile = new JsonManager().openJson();
         if (selectedFile != null) {
             new FileManager(selectedFile).copy();
         }
     }
 
+    /**
+     * Handles the refresh action to repopulate the table.
+     */
     @FXML
-    public void handleRefresh() {
+    private void handleRefresh() {
         this.populateTable();
     }
 
+    /**
+     * Handles the exit action to close the application.
+     */
     @FXML
-    public void handleExit() {
+    private void handleExit() {
         Platform.exit();
     }
 
+    /**
+     * Displays the about dialog with application information.
+     */
     @FXML
-    public void handleAbout() {
-        new AlertManager("À propos", "Occicards",
-                "Application de flashcards développée par la région Occitanie",
+    private void handleAbout() {
+        new AlertManager("About", "Occicards",
+                "Flashcard application developed by the Occitanie region",
                 Alert.AlertType.INFORMATION).alert();
     }
 }
