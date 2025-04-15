@@ -31,9 +31,9 @@ public class CardController {
      * Initializes the controller with existing card data if editing.
      */
     public void initialize() {
-        if (card != null) {
-            question.setText(card.getQuestion());
-            answer.setText(card.getAnswer());
+        if (getCard() != null) {
+            getQuestion().setText(getCard().getQuestion());
+            getAnswer().setText(getCard().getAnswer());
         }
     }
 
@@ -43,8 +43,8 @@ public class CardController {
      */
     @FXML
     public void handleCreate() {
-        String questionText = question.getText();
-        String answerText = answer.getText();
+        String questionText = getQuestion().getText();
+        String answerText = getAnswer().getText();
 
         if (questionText.isEmpty() || answerText.isEmpty()) {
             new AlertManager("Erreur", null, "Les champs question et réponse ne peuvent pas être vides.", Alert.AlertType.ERROR).alert();
@@ -53,14 +53,14 @@ public class CardController {
 
         Card newCard = new Card(questionText, answerText);
 
-        if (deckController != null) {
-            if (card == null) {
-                deckController.addCardToDeck(newCard);
+        if (getDeckController() != null) {
+            if (getCard() == null) {
+                getDeckController().addCardToDeck(newCard);
                 new AlertManager("Ajout d'une carte", null,
                         "Carte ajoutée avec succès.",
                         Alert.AlertType.INFORMATION).alert();
             } else {
-                deckController.updateCardInDeck(card, newCard);
+                getDeckController().updateCardInDeck(getCard(), newCard);
                 new AlertManager("Carte mise à jour", null,
                         "Carte mise à jour avec succès.",
                         Alert.AlertType.INFORMATION).alert();
@@ -75,8 +75,8 @@ public class CardController {
      */
     @FXML
     public void handleCancel() {
-        if (cardStage != null) {
-            cardStage.close();
+        if (getCardStage() != null) {
+            getCardStage().close();
         }
     }
 
@@ -99,6 +99,15 @@ public class CardController {
     }
 
     /**
+     * Gets the deck controller associated with this card controller.
+     *
+     * @return The deck controller.
+     */
+    public DeckController getDeckController() {
+        return deckController;
+    }
+
+    /**
      * Sets the deck controller associated with this card controller.
      *
      * @param deckController The deck controller to set.
@@ -108,15 +117,42 @@ public class CardController {
     }
 
     /**
+     * Gets the card data for editing.
+     *
+     * @return The card to edit.
+     */
+    public Card getCard() {
+        return card;
+    }
+
+    /**
      * Sets the card data for editing.
      *
      * @param card The card to edit.
      */
     public void setCardData(Card card) {
         this.card = card;
-        if (question != null && answer != null) {
-            question.setText(card.getQuestion());
-            answer.setText(card.getAnswer());
+        if (getQuestion() != null && getAnswer() != null) {
+            getQuestion().setText(card.getQuestion());
+            getAnswer().setText(card.getAnswer());
         }
+    }
+
+    /**
+     * Gets the TextArea for entering the question.
+     *
+     * @return The TextArea for the question.
+     */
+    public TextArea getQuestion() {
+        return question;
+    }
+
+    /**
+     * Gets the TextArea for entering the answer.
+     *
+     * @return The TextArea for the answer.
+     */
+    public TextArea getAnswer() {
+        return answer;
     }
 }
