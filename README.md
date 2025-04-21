@@ -31,20 +31,22 @@ OcciCards est disponible en deux versions :
 
 ## Documentation Technique
 
-La documentation technique est générée à l'aide de l'outil **Javadoc**. Elle offre une vue complète des fonctionnalités, classes, méthodes et attributs de l'application.
+La documentation technique a été générée à l'aide de l'outil **Javadoc**. Elle offre une vue complète des fonctionnalités, classes, méthodes et attributs de l'application.
 
-### Guide pour Afficher la Documentation
+### Comment Utiliser la Documentation
 
-1. **Générer la Documentation** :
-   - Assurez-vous que le projet est compilé avec Maven.
-   - Exécutez la commande suivante dans le répertoire racine du projet :
-     ```bash
-     mvn javadoc\:javadoc
-     ```
+1. **Accéder à la Documentation** :
+   - Ouvrez le fichier `index.html` situé dans le répertoire `/occicards/target/site/apidocs` de votre projet.
+   - Vous pouvez ouvrir ce fichier avec n'importe quel navigateur web.
 
-2. **Accéder à la Documentation** :
-   - Une fois la documentation générée, ouvrez le fichier `index.html` situé dans le répertoire `/occicards/target/site/apidocs`.
-   - Vous pouvez naviguer à travers les différentes sections pour comprendre la structure du projet et les fonctionnalités offertes.
+2. **Naviguer dans la Documentation** :
+   - La page d'accueil de la documentation présente une vue d'ensemble du projet.
+   - Utilisez le menu de navigation à gauche pour explorer les différents packages et classes.
+   - Cliquez sur les noms de classes ou de méthodes pour voir des descriptions détaillées, y compris les paramètres et les valeurs de retour.
+
+3. **Comprendre les Détails** :
+   - Chaque classe et méthode est documentée avec des descriptions, des exemples d'utilisation et des informations sur les exceptions possibles.
+   - Utilisez cette documentation pour comprendre comment utiliser les différentes fonctionnalités et intégrer le code dans vos propres projets.
 
 ## Conclusion
 
