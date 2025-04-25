@@ -4,6 +4,8 @@ module dm.occicards {
     requires javafx.graphics;
     requires org.json;
 
-    opens dm.occicards.controller to javafx.fxml;
     exports dm.occicards;
+    opens dm.occicards.controller to javafx.fxml;
+
+    opens dm.occicards.model to javafx.base;
 }

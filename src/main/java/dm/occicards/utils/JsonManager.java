@@ -79,7 +79,7 @@ public class JsonManager {
         return json;
     }
 
-    private void setJson(String jsonString) {
+    public void setJson(String jsonString) {
         try {
             this.json = new JSONObject(jsonString);
         } catch (JSONException e) {
