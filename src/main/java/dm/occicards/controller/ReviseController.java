@@ -166,8 +166,8 @@ public class ReviseController {
             if (dialogStage != null) {
                 dialogStage.close();
             }
-            new AlertManager("Revision Complete", "",
-                    "You have finished your revision",
+            new AlertManager("Révisions terminées", "",
+                    "Vous avez terminé votre révision.",
                     Alert.AlertType.INFORMATION).alert();
             return;
         }
@@ -250,12 +250,12 @@ public class ReviseController {
      */
     private void displayCard(int index) {
         if (cards.isEmpty()) {
-            remainingCard.setText("0 cards remaining");
+            remainingCard.setText("0 carte restante");
             return;
         }
 
         Card card = cards.get(index);
-        remainingCard.setText(String.valueOf(cards.size() - index) + " cards remaining");
+        remainingCard.setText(String.valueOf(cards.size() - index) + " cartes restante");
         questionText.setText(card.getQuestion());
         answerText.setText(card.getAnswer());
 

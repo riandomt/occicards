@@ -16,15 +16,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Controller class for managing deck-related operations in the application.
- */
 public class DeckController {
     private Stage dialogStage;
     private MainController mainController;
@@ -32,63 +31,33 @@ public class DeckController {
     private final ObservableList<Card> temporaryCards = FXCollections.observableArrayList();
     private Card selectedCard; // To keep track of the selected card for editing
 
-    /**
-     * Text element for displaying the title.
-     */
     @FXML
     private Text title;
 
-    /**
-     * TextField for entering the deck name.
-     */
     @FXML
     private TextField name;
 
-    /**
-     * TextArea for entering the deck description.
-     */
     @FXML
     private TextArea description;
 
-    /**
-     * Button for submitting the deck creation or modification.
-     */
     @FXML
     private Button submitButton;
 
-    /**
-     * TableView for displaying the list of cards in the deck.
-     */
     @FXML
     private TableView<Card> tableView;
 
-    /**
-     * TableColumn for displaying the question of each card.
-     */
     @FXML
     private TableColumn<Card, String> questionColumn;
 
-    /**
-     * TableColumn for displaying the answer of each card.
-     */
     @FXML
     private TableColumn<Card, String> answerColumn;
 
-    /**
-     * TableColumn for editing a card.
-     */
     @FXML
     private TableColumn<Card, Void> editColumn;
 
-    /**
-     * TableColumn for deleting a card.
-     */
     @FXML
     private TableColumn<Card, Void> deleteColumn;
 
-    /**
-     * Initializes the controller, sets up the table columns and buttons.
-     */
     @FXML
     public void initialize() {
         submitButton.setText("Create Deck");
@@ -110,11 +79,7 @@ public class DeckController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(editButton);
-                }
+                setGraphic(empty ? null : editButton);
             }
         });
 
@@ -130,6 +95,7 @@ public class DeckController {
                                 Alert.AlertType.CONFIRMATION).confirm()) {
                             getTableView().getItems().remove(card);
                             deck.getCards().remove(card);
+                            updateDeckFile();
                         }
                     } else {
                         temporaryCards.remove(card);
@@ -142,21 +108,13 @@ public class DeckController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(deleteButton);
-                }
+                setGraphic(empty ? null : deleteButton);
             }
         });
 
         tableView.setItems(temporaryCards);
     }
 
-    /**
-     * Handles the submission of the deck creation or modification form.
-     * Validates the input fields and saves the deck to a file.
-     */
     @FXML
     private void handleSubmit() {
         String deckName = name.getText();
@@ -165,25 +123,23 @@ public class DeckController {
         boolean alertShown = false;
 
         if (deck == null) {
-            // Only validate and set the deck name if creating a new deck
             if (deckName.isEmpty()) {
-                new AlertManager("Error", null, "Entrer le nom du deck", Alert.AlertType.ERROR).alert();
+                new AlertManager("Erreur", null, "Entrer le nom du deck", Alert.AlertType.ERROR).alert();
                 alertShown = true;
             } else if (deckName.length() > 50) {
-                new AlertManager("Error", null, "Le nom du deck est trop long", Alert.AlertType.ERROR).alert();
+                new AlertManager("Erreur", null, "Le nom du deck est trop long", Alert.AlertType.ERROR).alert();
                 alertShown = true;
             } else if (!deckName.matches("[a-zA-Z0-9 ]+")) {
-                new AlertManager("Error", null, "Le nom du deck ne dois pas contenir " +
-                        "de caractères spéciaux", Alert.AlertType.ERROR).alert();
+                new AlertManager("Erreur", null, "Le nom du deck ne doit pas contenir de caractères spéciaux", Alert.AlertType.ERROR).alert();
                 alertShown = true;
             }
         }
 
         if (deckDescription.isEmpty()) {
-            new AlertManager("Error", null, "Entrer une description du deck", Alert.AlertType.ERROR).alert();
+            new AlertManager("Erreur", null, "Entrer une description du deck", Alert.AlertType.ERROR).alert();
             alertShown = true;
         } else if (deckDescription.length() > 300) {
-            new AlertManager("Error", null, "La description du deck est trop longue", Alert.AlertType.ERROR).alert();
+            new AlertManager("Erreur", null, "La description du deck est trop longue", Alert.AlertType.ERROR).alert();
             alertShown = true;
         }
 
@@ -193,92 +149,53 @@ public class DeckController {
 
         if (deck == null) {
             deck = new Deck(deckName, deckDescription, new ArrayList<>(temporaryCards));
-            String content = "{\n" +
-                    "  \"name\": \"" + deck.getName() + "\",\n" +
-                    "  \"description\": \"" + deck.getDescription() + "\",\n" +
-                    "  \"deck\": {}\n" +
-                    "}";
-
-            File file = new File("user_dir", deck.getName().replace(" ", "_").toLowerCase() + ".json");
-            FileManager fileManager = new FileManager(file);
-            fileManager.writeFileContent(content);
-            new AlertManager("Deck Creation", null,
-                    "Deck created successfully",
-                    Alert.AlertType.INFORMATION).alert();
-
-            updateDeckFile(deck, deck);
+            new AlertManager("Deck Creation", null, "Deck créé avec succès", Alert.AlertType.INFORMATION).alert();
         } else {
-            // Do not update the deck name when modifying
             deck.setDescription(deckDescription);
-            deck.setCards(new ArrayList<>(temporaryCards));
-            updateDeckFile(deck, deck);
-            new AlertManager("Deck Modification", null,
-                    "Deck modified successfully",
-                    Alert.AlertType.INFORMATION).alert();
+            new AlertManager("Deck Modifier", null, "Deck modifié avec succès", Alert.AlertType.INFORMATION).alert();
         }
+
+        updateDeckFile();
 
         if (mainController != null) {
             mainController.populateTable();
         }
-        this.handleCancel();
+        handleCancel();
     }
 
-    /**
-     * Updates the deck file with the new deck information.
-     *
-     * @param deck   The original deck.
-     * @param newDeck The updated deck.
-     */
-    private void updateDeckFile(Deck deck, Deck newDeck) {
+    private void updateDeckFile() {
+        if (deck == null) return;
+
         File fileDeck = new File("user_dir", deck.getName().replace(" ", "_").toLowerCase() + ".json");
         FileManager fileManager = new FileManager(fileDeck);
 
-        String content = fileManager.getFileContent();
-        JsonManager jsonManager = new JsonManager(content);
+        JSONObject json = new JSONObject();
+        json.put("name", deck.getName());
+        json.put("description", deck.getDescription());
 
-        // Do not update the deck name
-        jsonManager.update("description", newDeck.getDescription());
-
-        JSONObject deckJson = jsonManager.getJson().optJSONObject("deck");
-        if (deckJson == null) {
-            deckJson = new JSONObject();
-            jsonManager.getJson().put("deck", deckJson);
-        }
-
-        for (int i = 0; i < newDeck.getCards().size(); i++) {
-            Card card = newDeck.getCards().get(i);
+        JSONObject deckJson = new JSONObject();
+        for (int i = 0; i < deck.getCards().size(); i++) {
+            Card card = deck.getCards().get(i);
             JSONObject cardObject = new JSONObject();
             cardObject.put("question", card.getQuestion());
             cardObject.put("answer", card.getAnswer());
             deckJson.put(String.valueOf(i + 1), cardObject);
         }
+        json.put("deck", deckJson);
 
-        fileManager.writeFileContent(jsonManager.getJsonAsString());
-        // Do not rename the file
+        fileManager.writeFileContent(json.toString(4));
+        System.out.println("Deck file overwritten successfully.");
     }
 
-    /**
-     * Handles the addition of a new card to the deck.
-     */
     @FXML
     private void handleAddCard() {
-        openCardView(null); // Open the card view for adding a new card
+        openCardView(null);
     }
 
-    /**
-     * Handles the editing of an existing card.
-     *
-     * @param card The card to be edited.
-     */
     private void handleEditCard(Card card) {
-        openCardView(card); // Open the card view for editing the selected card
+        openCardView(card);
     }
 
-    /**
-     * Opens the card view for adding or editing a card.
-     *
-     * @param card The card to be edited, or null if adding a new card.
-     */
     private void openCardView(Card card) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/card-view.fxml"));
@@ -298,7 +215,7 @@ public class DeckController {
             cardController.setDeckController(this);
 
             if (card != null) {
-                cardController.setCardData(card); // Set the card data for editing
+                cardController.setCardData(card);
             }
 
             cardStage.showAndWait();
@@ -308,39 +225,28 @@ public class DeckController {
         }
     }
 
-    /**
-     * Adds a card to the deck.
-     *
-     * @param card The card to add.
-     */
     public void addCardToDeck(Card card) {
         if (card.getQuestion() == null || card.getAnswer() == null) {
-            System.out.println("Error: The card does not have a question or answer.");
+            System.out.println("Erreur: La carte n'a pas de question ou de réponse");
             return;
         }
 
         if (deck != null) {
             deck.getCards().add(card);
-            updateDeckFile(deck, deck);
+            updateDeckFile();
         } else {
             temporaryCards.add(card);
         }
-        populateTable(); // Ensure the table is updated
-        System.out.println("Card added: " + card.getQuestion()); // Debugging line
+        populateTable();
+        System.out.println("Card ajoutée : " + card.getQuestion());
     }
 
-    /**
-     * Updates a card in the deck.
-     *
-     * @param card The card to update.
-     * @param newCard The updated card data.
-     */
     public void updateCardInDeck(Card card, Card newCard) {
         if (deck != null) {
             int index = deck.getCards().indexOf(card);
             if (index >= 0) {
                 deck.getCards().set(index, newCard);
-                updateDeckFile(deck, deck);
+                updateDeckFile();
             }
         } else {
             int index = temporaryCards.indexOf(card);
@@ -348,14 +254,10 @@ public class DeckController {
                 temporaryCards.set(index, newCard);
             }
         }
-        populateTable(); // Ensure the table is updated
-        System.out.println("Card updated: " + newCard.getQuestion()); // Debugging line
+        populateTable();
+        System.out.println("Card modifiée : " + newCard.getQuestion());
     }
 
-    /**
-     * Handles the cancellation of the current operation.
-     * Closes the dialog stage and clears temporary cards.
-     */
     @FXML
     public void handleCancel() {
         if (dialogStage != null) {
@@ -367,127 +269,89 @@ public class DeckController {
         }
     }
 
-    /**
-     * Gets the current dialog stage.
-     *
-     * @return The current dialog stage.
-     */
     public Stage getDialogStage() {
         return dialogStage;
     }
 
-    /**
-     * Sets the current dialog stage.
-     *
-     * @param dialogStage The stage to set.
-     */
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
     }
 
-    /**
-     * Sets the main controller associated with this deck controller.
-     *
-     * @param mainController The main controller to set.
-     */
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }
 
-    /**
-     * Populates the table view with cards from the deck or temporary cards.
-     */
     public void populateTable() {
-        ObservableList<Card> cards = FXCollections.observableArrayList();
-        if (deck != null) {
-            cards.addAll(deck.getCards());
-        } else {
-            cards.addAll(temporaryCards);
-        }
-        for (Card card : cards) {
-            System.out.println("Card: " + card.getQuestion() + ", " + card.getAnswer()); // Debugging line
-        }
+        if (deck == null) return;
+
+        ObservableList<Card> cards = FXCollections.observableArrayList(deck.getCards());
         tableView.setItems(cards);
-        System.out.println("Table populated with " + cards.size() + " cards."); // Debugging line
+        System.out.println("Table populated with " + cards.size() + " cards.");
     }
-    /**
-     * Sets the value of the title text.
-     *
-     * @param value The value to set.
-     */
+
     public void setTitleValue(String value) {
         title.setText(value);
     }
 
-    /**
-     * Gets the description text area.
-     *
-     * @return The description text area.
-     */
     public TextArea getDescription() {
         return description;
     }
 
-    /**
-     * Sets the description text.
-     *
-     * @param description The description to set.
-     */
     public void setDescription(String description) {
         this.description.setText(description);
     }
 
-    /**
-     * Gets the name text field.
-     *
-     * @return The name text field.
-     */
     public TextField getName() {
         return name;
     }
 
-    /**
-     * Sets the name text.
-     *
-     * @param name The name to set.
-     */
     public void setName(String name) {
         this.name.setText(name);
     }
 
-    /**
-     * Gets the submit button.
-     *
-     * @return The submit button.
-     */
     public Button getSubmitButton() {
         return submitButton;
     }
 
-    /**
-     * Sets the text of the submit button.
-     *
-     * @param buttonText The text to set.
-     */
     public void setSubmitButton(String buttonText) {
         this.submitButton.setText(buttonText);
     }
 
-    /**
-     * Sets the deck associated with this controller.
-     *
-     * @param deck The deck to set.
-     */
     public void setDeck(Deck deck) {
         this.deck = deck;
         if (deck != null) {
             temporaryCards.setAll(deck.getCards());
             populateTable();
-            // Disable the name field when modifying an existing deck
             name.setEditable(false);
         } else {
-            // Enable the name field when creating a new deck
             name.setEditable(true);
         }
+    }
+
+    public void loadDeckFromFile(File file) {
+        if (file == null || !file.exists()) {
+            System.out.println("Deck file not found. Starting with an empty deck.");
+            deck = new Deck("Nouveau Deck", "Description par défaut", new ArrayList<>());
+            return;
+        }
+
+        FileManager fileManager = new FileManager(file);
+        String fileContent = fileManager.getFileContent();
+
+        JsonManager jsonManager = new JsonManager(fileContent);
+        JSONArray deckElements = jsonManager.getDeckElements();
+
+        List<Card> cards = new ArrayList<>();
+        for (int i = 0; i < deckElements.length(); i++) {
+            JSONObject cardJson = deckElements.getJSONObject(i);
+            Card card = new Card(cardJson.getString("question"), cardJson.getString("answer"));
+            cards.add(card);
+        }
+
+        deck = new Deck(jsonManager.getValue("name"), jsonManager.getValue("description"), cards);
+        temporaryCards.setAll(cards);
+        populateTable();
+
+        System.out.println("Deck loaded from file with " + cards.size() + " cards.");
     }
 }

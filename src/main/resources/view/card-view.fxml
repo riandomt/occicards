@@ -18,12 +18,12 @@
 
     <HBox spacing="10" alignment="CENTER">
         <Label text="Question : " styleClass="label"/>
-        <TextArea fx:id="question" wrapText="true" prefWidth="600" prefHeight="100"/>
+        <TextArea fx:id="question" wrapText="true" prefWidth="600" prefHeight="100" styleClass="text-area-left"/>
     </HBox>
 
     <HBox spacing="10" alignment="CENTER">
         <Label text="Réponse : " styleClass="label"/>
-        <TextArea fx:id="answer" wrapText="true" prefWidth="600" prefHeight="100"/>
+        <TextArea fx:id="answer" wrapText="true" prefWidth="600" prefHeight="100" styleClass="text-area-left"/>
     </HBox>
 
     <Separator/>

@@ -6,4 +6,6 @@ module dm.occicards {
 
     exports dm.occicards;
     opens dm.occicards.controller to javafx.fxml;
+
+    opens dm.occicards.model to javafx.base;
 }

@@ -23,7 +23,6 @@ class FileManagerTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        // Use a temporary directory for testing
         testFile = tempDir.resolve("test_file.txt").toFile();
         Files.createFile(testFile.toPath());
         fileManager = new FileManager(testFile);
@@ -31,27 +30,47 @@ class FileManagerTest {
 
     @AfterEach
     void tearDown() {
-        // Clean up any created files after each test
+        // Supprimez le fichier temporaire s'il existe
         if (testFile.exists()) {
             testFile.delete();
+        }
+
+        // Nettoyage du répertoire USER_DIR
+        File userDir = fileManager.getUserDir();
+        if (userDir.exists()) {
+            for (File file : userDir.listFiles()) {
+                file.delete();
+            }
+        }
+
+        // Supprimez tous les fichiers créés dans le répertoire temporaire
+        try {
+            Files.walk(tempDir)
+                    .sorted((a, b) -> b.compareTo(a)) // Delete directories after files
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            System.err.println("Error deleting file: " + path);
+                        }
+                    });
+        } catch (IOException e) {
+            System.err.println("Error cleaning up temporary directory: " + e.getMessage());
         }
     }
 
     @Test
     void testCreate() {
-        File newFile = tempDir.resolve("new_file.txt").toFile();
-        fileManager = new FileManager(newFile);
-
+        fileManager = new FileManager(new File(tempDir.toFile(), "new_file"));
         String result = fileManager.create("txt");
         assertNotNull(result);
-        assertTrue(newFile.exists());
+        assertTrue(new File(fileManager.getUserDir(), "new_file.txt").exists());
     }
 
     @Test
     void testCopy() {
         fileManager.copy();
-        File copiedFile = tempDir.resolve("user_dir/test_file.txt").toFile();
-        assertTrue(copiedFile.exists());
+        assertTrue(new File(fileManager.getUserDir(), "test_file.txt").exists());
     }
 
     @Test
@@ -63,34 +82,20 @@ class FileManagerTest {
 
     @Test
     void testWriteFileContent() {
-        String content = "Test content";
-        fileManager.writeFileContent(content);
-
-        String fileContent = fileManager.getFileContent();
-        assertEquals(content + System.lineSeparator(), fileContent);
+        fileManager.writeFileContent("Test content");
+        assertEquals("Test content" + System.lineSeparator(), fileManager.getFileContent());
     }
 
     @Test
-    void testGetFileContent() {
-        String content = "Test content";
-        fileManager.writeFileContent(content);
+    void testFetchFiles() throws IOException {
+        Files.createFile(tempDir.resolve("file1.json"));
+        Files.createFile(tempDir.resolve("file2.txt"));
 
-        String fileContent = fileManager.getFileContent();
-        assertEquals(content + System.lineSeparator(), fileContent);
-    }
+        fileManager = new FileManager(tempDir.toFile());
+        List<File> jsonFiles = fileManager.fetchFiles();
 
-    @Test
-    void testFetchFiles() {
-        File jsonFile = tempDir.resolve("test.json").toFile();
-        try {
-            Files.createFile(jsonFile.toPath());
-        } catch (IOException e) {
-            fail("Failed to create test file: " + e.getMessage());
-        }
-
-        List<File> files = fileManager.fetchFiles();
-        assertEquals(1, files.size());
-        assertEquals("test.json", files.get(0).getName());
+        assertEquals(1, jsonFiles.size());
+        assertEquals("file1.json", jsonFiles.get(0).getName());
     }
 
     @Test
@@ -102,9 +107,9 @@ class FileManagerTest {
     @Test
     void testRename() {
         fileManager.rename("new_name");
-        File renamedFile = tempDir.resolve("new_name.json").toFile();
-        assertTrue(renamedFile.exists());
+        assertTrue(tempDir.resolve("new_name.json").toFile().exists());
     }
+
 
     @Test
     void testGetFile() {

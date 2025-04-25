@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class MainController {
     @FXML
-    private TableView<Deck> tableView;
+    TableView<Deck> tableView;
 
     /**
      * TableColumn for displaying the deck name.
@@ -239,17 +239,17 @@ public class MainController {
      *
      * @param name The name of the deck to delete.
      */
-    private void handleDelete(String name) {
+    void handleDelete(String name) {
         File jsonFile = new File("user_dir" + File.separator + name.replace(" ", "_").toLowerCase() + ".json");
-        AlertManager alert = new AlertManager("Delete Deck",
-                "Are you sure you want to delete this deck?",
-                "Click OK to confirm",
+        AlertManager alert = new AlertManager("Supprimer le deck",
+                "Êtes-vous sûr de vouloir supprimer le deck ?",
+                "Cliquez sur OK pour confirmer",
                 Alert.AlertType.CONFIRMATION);
         if (alert.confirm()) {
             new FileManager(jsonFile).delete();
-            new AlertManager("Deck Deletion",
+            new AlertManager("Suppression du deck",
                     null,
-                    "Deck deleted successfully", Alert.AlertType.INFORMATION).alert();
+                    "Deck supprimer avec succès", Alert.AlertType.INFORMATION).alert();
             populateTable();
         }
     }
@@ -284,7 +284,7 @@ public class MainController {
      *
      * @param name The name of the deck to download.
      */
-    private void handleDownload(String name) {
+    void handleDownload(String name) {
         File jsonFile = new File("user_dir" + File.separator + name + ".json");
         FileManager fileManager = new FileManager(new File("user_dir"));
         File selectedDirectory = fileManager.openDir(this.tableView.getScene().getWindow());
@@ -398,8 +398,8 @@ public class MainController {
      */
     @FXML
     private void handleAbout() {
-        new AlertManager("About", "Occicards",
-                "Flashcard application developed by the Occitanie region",
+        new AlertManager("A Propos", "Occicards",
+                "Application de flashcards développée par la région Occitanie (Languedoc Roussillon)",
                 Alert.AlertType.INFORMATION).alert();
     }
 }
