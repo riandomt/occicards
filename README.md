@@ -21,7 +21,7 @@ Sabatech propose **OcciCards**, une application d'apprentissage basée sur des f
 OcciCards est disponible en deux versions :
 
 - **Application lourde** : Développée pour une utilisation hors connexion sur ordinateur, compatible avec Windows, macOS et Linux.
-- **Application légère** : Accessible via un navigateur web, permettant un accès rapide et flexible aux flashcards depuis n'importe quel appareil connecté.
+- **Application légère (non réalisé)** : Accessible via un navigateur web, permettant un accès rapide et flexible aux flashcards depuis n'importe quel appareil connecté.
 
 ## Fonctionnalités
 
